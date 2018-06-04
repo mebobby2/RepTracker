@@ -1,26 +1,54 @@
 import React from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
+import { Accelerometer } from "expo";
+
+function round(n) {
+  if (!n) return 0;
+  return Math.floor(n * 100) / 100;
+}
 
 export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { reps: 0, recording: false };
-  }
+  state = { reps: 0, recording: false, accelerometerData: {} };
 
   onPress = () => {
-    this.setState({ recording: !this.state.recording });
+    const newRecording = !this.state.recording;
+    this.setState(
+      {
+        recording: newRecording,
+        reps: newRecording ? 0 : this.state.reps
+      },
+      this.handleSubscription
+    );
+  };
+
+  handleSubscription() {
+    if (this.state.recording) {
+      Accelerometer.setUpdateInterval(1000);
+      this._subscription = Accelerometer.addListener(accelerometerData => {
+        this.setState({ accelerometerData });
+      });
+    } else {
+      this._subscription && this._subscription.remove();
+      this._subscription = null;
+    }
   }
 
   render() {
+    let { x, y, z } = this.state.accelerometerData;
+
     return (
       <View style={styles.container}>
         <Text style={styles.bigText}>{this.state.reps}</Text>
         <Button
           title={this.state.recording ? "Stop" : "Start"}
-          style={styles.bottom}
           onPress={this.onPress}
-        >
-        </Button>
+        />
+        <Text style={styles.bold}>x</Text>
+        <Text>{round(x)}</Text>
+        <Text style={styles.bold}>y</Text>
+        <Text>{round(y)}</Text>
+        <Text style={styles.bold}>z</Text>
+        <Text>{round(z)}</Text>
       </View>
     );
   }
@@ -37,7 +65,7 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 350
   },
-  bottom: {
-    marginTop: "auto"
-  }
+  bold: {
+    fontWeight: 'bold',
+  },
 });
