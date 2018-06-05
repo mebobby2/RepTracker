@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Button, TabBarIOS } from "react-native";
+import { StyleSheet, Text, View, Button } from "react-native";
 import { Accelerometer } from "expo";
 
 function round(n) {
@@ -49,27 +49,19 @@ export default class App extends React.Component {
     let { x, y, z } = this.state.accelerometerData;
 
     return (
-      <TabBarIOS>
-        <TabBarIOS.Item
-          title="Accelerometer"
-          systemIcon="contacts"
-          selected={true}
-        >
-          <View style={styles.container}>
-            <Text style={styles.bigText}>{this.state.reps}</Text>
-            <Button
-              title={this.state.recording ? "Stop" : "Start"}
-              onPress={this.onPress}
-            />
-            <Text style={styles.bold}>x</Text>
-            <Text>{round(x)}</Text>
-            <Text style={styles.bold}>y</Text>
-            <Text>{round(y)}</Text>
-            <Text style={styles.bold}>z</Text>
-            <Text>{round(z)}</Text>
-          </View>
-        </TabBarIOS.Item>
-      </TabBarIOS>
+      <View style={styles.container}>
+        <Text style={styles.bigText}>{this.state.reps}</Text>
+        <Button
+          title={this.state.recording ? "Stop" : "Start"}
+          onPress={this.onPress}
+        />
+        <Text style={styles.bold}>x</Text>
+        <Text>{round(x)}</Text>
+        <Text style={styles.bold}>y</Text>
+        <Text>{round(y)}</Text>
+        <Text style={styles.bold}>z</Text>
+        <Text>{round(z)}</Text>
+      </View>
     );
   }
 }
