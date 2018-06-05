@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, Button, TabBarIOS } from "react-native";
 import { Accelerometer } from "expo";
 
 function round(n) {
@@ -22,10 +22,11 @@ export default class App extends React.Component {
   };
 
   handleSubscription() {
+    this._moving = false;
     if (this.state.recording) {
       Accelerometer.setUpdateInterval(1000);
       this._subscription = Accelerometer.addListener(accelerometerData => {
-        this.setState({ accelerometerData });
+        this.setState({ accelerometerData }, this.analyseData);
       });
     } else {
       this._subscription && this._subscription.remove();
@@ -33,23 +34,42 @@ export default class App extends React.Component {
     }
   }
 
+  analyseData() {
+    const z = this.state.accelerometerData.z;
+    if (Math.abs(z) > 0.2) {
+      this._moving = true;
+    }
+    if (Math.abs(z) < 0.05 && this._moving === true) {
+      this._moving = false;
+      this.setState({ reps: this.state.reps + 1 });
+    }
+  }
+
   render() {
     let { x, y, z } = this.state.accelerometerData;
 
     return (
-      <View style={styles.container}>
-        <Text style={styles.bigText}>{this.state.reps}</Text>
-        <Button
-          title={this.state.recording ? "Stop" : "Start"}
-          onPress={this.onPress}
-        />
-        <Text style={styles.bold}>x</Text>
-        <Text>{round(x)}</Text>
-        <Text style={styles.bold}>y</Text>
-        <Text>{round(y)}</Text>
-        <Text style={styles.bold}>z</Text>
-        <Text>{round(z)}</Text>
-      </View>
+      <TabBarIOS>
+        <TabBarIOS.Item
+          title="Accelerometer"
+          systemIcon="contacts"
+          selected={true}
+        >
+          <View style={styles.container}>
+            <Text style={styles.bigText}>{this.state.reps}</Text>
+            <Button
+              title={this.state.recording ? "Stop" : "Start"}
+              onPress={this.onPress}
+            />
+            <Text style={styles.bold}>x</Text>
+            <Text>{round(x)}</Text>
+            <Text style={styles.bold}>y</Text>
+            <Text>{round(y)}</Text>
+            <Text style={styles.bold}>z</Text>
+            <Text>{round(z)}</Text>
+          </View>
+        </TabBarIOS.Item>
+      </TabBarIOS>
     );
   }
 }
@@ -66,6 +86,6 @@ const styles = StyleSheet.create({
     fontSize: 350
   },
   bold: {
-    fontWeight: 'bold',
-  },
+    fontWeight: "bold"
+  }
 });
